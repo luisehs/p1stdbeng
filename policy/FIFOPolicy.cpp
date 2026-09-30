@@ -19,7 +19,7 @@ void FIFOPolicy::on_load(std::size_t frame) {
 }
 void FIFOPolicy::on_remove(std::size_t frame) {
     auto it = positions_.find(frame);
-    if (it != positions_.end()) {
+    if (it == positions_.end()) {
         return;
     }
 

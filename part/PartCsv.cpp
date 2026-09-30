@@ -41,7 +41,8 @@ bool parse_line(const std::string& line, Part& part, std::string& error) {
         !std::getline(input, part_weight_text, ',') ||
         !std::getline(input, part_color_text, ',') ||
         !std::getline(input, part_price_text, ',') ||
-        std::getline(input, part_material, ',')) {
+        !std::getline(input, part_material, ',') ||
+        std::getline(input, extra, ',')) {
         error = "expected exactly six comma-separated fields";
         return false;
     }
@@ -90,7 +91,7 @@ bool parse_line(const std::string& line, Part& part, std::string& error) {
 }
 
 
-PartLoadResult load(const std::string& path, std::ostream& diagnostics) {
+PartLoadResult load_parts(const std::string& path, std::ostream& diagnostics) {
     PartLoadResult result;
     std::ifstream input(path);
     if (!input) {
