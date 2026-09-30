@@ -1,20 +1,45 @@
-// #include "LRUv2Policy.h"
+#include "LRUv2Policy.h"
+#include <algorithm>
 
 namespace bufman {
 
-// void FIFOPolicy::init(std::size_t) {}
-// void FIFOPolicy::on_access(std::size_t) {}
-// void FIFOPolicy::on_load(std::size_t) {}
-// void FIFOPolicy::on_remove(std::size_t) {}
-// std::optional<std::size_t> FIFOPolicy::pick_victim(
-//         const std::vector<std::size_t>& candidates) const {
-//     // Valid but arbitrary: keeps the harness running. A stub that returns
-//     // std::nullopt makes the check suite abort partway.
-//     if (candidates.empty()) {
-//         return std::nullopt;
-//     }
-//     return candidates.front();
-// }
+    void LRUv2Policy::init(std::size_t) {
+        order_.clear();
+        nodes_.clear();
+    }
 
-// 
+    void LRUv2Policy::touch(std::size_t frame) {
+        auto it = nodes_.find(frame);
+        if (it != nodes_.end()) {
+            order_.erase(it->second);
+        }
+        order_.push_front(frame);
+        nodes_[frame] = order_.begin();
+    }
+
+    void LRUv2Policy::on_access(std::size_t frame) {
+        touch(frame);
+    }
+
+    void LRUv2Policy::on_load(std::size_t frame) {
+        touch(frame);
+    }
+    
+    void LRUv2Policy::on_remove(std::size_t frame) {
+        auto it = nodes_.find(frame);
+        if (it == nodes_.end()) {
+            return;
+        }
+        order_.erase(it->second);
+        nodes_.erase(it);
+    }
+
+    std::optional<std::size_t> LRUv2Policy::pick_victim(const std::vector<std::size_t>&candidates) const {
+        for (auto it = order_.rbegin(); it != order_.rend(); ++it) {
+            if (std::find(candidates.begin(), candidates.end(), *it) != candidates.end()) {
+                return *it;
+            }
+        }
+        return std::nullopt;
+    }
 }
